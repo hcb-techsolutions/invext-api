@@ -1,6 +1,6 @@
 ### Pré-Requisitos
 
-Docker e Docker Compose Instalado
+Docker e Docker Compose Instalado. 
 Postman ou Insomnia instalado para testar a api
 
 
