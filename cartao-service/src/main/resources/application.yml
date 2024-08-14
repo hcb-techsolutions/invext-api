@@ -1,0 +1,16 @@
+app:
+  rabbitmq:
+    cartao:
+      exchange: cartao.exchange
+      queue: cartao.queue
+      routing-key: cartao.routing-key
+
+spring:
+  application:
+    name: cartao-service
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: "invext"
+    password: "@invext24"
+    virtual-host: /

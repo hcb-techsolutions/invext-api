@@ -1,0 +1,16 @@
+app:
+  rabbitmq:
+    emprestimo:
+      exchange: emprestimo.exchange
+      queue: emprestimo.queue
+      routing-key: emprestimo.routing-key
+
+spring:
+  application:
+    name: emprestimo-service
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: "invext"
+    password: "@invext24"
+    virtual-host: /

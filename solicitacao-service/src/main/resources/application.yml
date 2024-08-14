@@ -1,0 +1,50 @@
+app:
+  rabbitmq:
+    cartao:
+      exchange: cartao.exchange
+      queue: cartao.queue
+      routing-key: cartao.routing-key
+    emprestimo:
+      exchange: emprestimo.exchange
+      queue: emprestimo.queue
+      routing-key: emprestimo.routing-key
+    outro:
+      exchange: outro.exchange
+      queue: outro.queue
+      routing-key: outro.routing-key
+      
+eureka:
+  client:
+    service-url:
+      defaultZone: http://test:test@localhost:8761/eureka
+  instance:
+    instance-id: ${spring.application.name}:${spring.application.instance_id:${random.value}}
+    prefer-ip-address: true
+
+logging:
+  file:
+    name: ./logs/log-file.log
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - logfile
+          - refresh
+
+server:
+  port: 0
+
+spring:
+  application:
+    name: solicitacao-service
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: "invext"
+    password: "@invext24"
+    virtual-host: /
+

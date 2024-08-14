@@ -1,0 +1,159 @@
+name: "invext"
+
+services:
+  rabbitmq:
+    image: rabbitmq:3.13.6-management
+    hostname: rabbitmq
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: invext
+      RABBITMQ_DEFAULT_PASS: '@invext24'
+      TZ: America/Sao_Paulo
+    networks:
+      - "invext_network"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 10s
+      start_period: 0s
+      retries: 5
+
+  eureka-server:
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile
+    image: eureka-server
+    hostname: eureka-server
+    container_name: eureka-server
+    restart: always
+    environment:
+      SPRING.SECURITY.USER.NAME: admin
+      SPRING.SECURITY.USER.PASSWORD: admin
+      TZ: America/Sao_Paulo
+    networks:
+      - "invext_network"
+    tty: true
+    ports:
+      - 8761:8761		
+    healthcheck:
+      test: "curl -fs localhost:8761/actuator/health | grep UP || exit 1"
+      interval: 20s
+      timeout: 5s
+      start_period: 30s
+      retries: 5
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    image: api-gateway
+    hostname: api-gateway
+    container_name: api-gateway
+    restart: always
+    environment:
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://admin:admin@eureka-server:8761/eureka
+      TZ: America/Sao_Paulo
+    networks:
+      - "invext_network"
+    tty: true
+    ports:
+      - 8080:8080
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+
+  solicitacao-service:
+    build:
+      context: ./solicitacao-service
+      dockerfile: Dockerfile
+    image: solicitacao-service
+    hostname: solicitacao-service
+    restart: always
+    environment:
+      EUREKA.CLIENT.SERVICEURL.DEFAULTZONE: http://admin:admin@eureka-server:8761/eureka
+      SPRING.RABBITMQ.HOST: rabbitmq
+      SPRING.RABBITMQ.USERNAME: invext
+      SPRING.RABBITMQ.PASSWORD: '@invext24'
+      TZ: America/Sao_Paulo
+    networks:
+      - "invext_network"
+    tty: true
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    deploy:
+      replicas: 2  
+
+  cartao-service:
+    build:
+      context: ./cartao-service
+      dockerfile: Dockerfile
+    image: cartao-service
+    hostname: cartao-service
+    container_name: cartao-service
+    restart: always
+    environment:
+      SPRING.RABBITMQ.HOST: rabbitmq
+      SPRING.RABBITMQ.USERNAME: invext
+      SPRING.RABBITMQ.PASSWORD: '@invext24'
+      TZ: America/Sao_Paulo
+    networks:
+      - "invext_network"
+    tty: true
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  emprestimo-service:
+    build:
+      context: ./emprestimo-service
+      dockerfile: Dockerfile
+    image: emprestimo-service
+    hostname: emprestimo-service
+    container_name: emprestimo-service
+    restart: always
+    environment:
+      SPRING.RABBITMQ.HOST: rabbitmq
+      SPRING.RABBITMQ.USERNAME: invext
+      SPRING.RABBITMQ.PASSWORD: '@invext24'
+      TZ: America/Sao_Paulo
+    networks:
+      - "invext_network"
+    tty: true
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  outro-assunto-service:
+    build:
+      context: ./outro-assunto-service
+      dockerfile: Dockerfile
+    image: outro-assunto-service
+    hostname: outro-assunto-service
+    container_name: outro-assunto-service
+    restart: always
+    environment:
+      SPRING.RABBITMQ.HOST: rabbitmq
+      SPRING.RABBITMQ.USERNAME: invext
+      SPRING.RABBITMQ.PASSWORD: '@invext24'
+      TZ: America/Sao_Paulo
+    networks:
+      - "invext_network"
+    tty: true
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+networks:
+  invext_network:
+    driver: bridge
+
+volumes:
+  rabbitmq_data:

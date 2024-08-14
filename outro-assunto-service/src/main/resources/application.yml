@@ -1,0 +1,16 @@
+app:
+  rabbitmq:
+    outro:
+      exchange: outro.exchange
+      queue: outro.queue
+      routing-key: outro.routing-key
+
+spring:
+  application:
+    name: outro-assunto-service
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: "invext"
+    password: "@invext24"
+    virtual-host: /
