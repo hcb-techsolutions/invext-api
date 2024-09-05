@@ -32,6 +32,8 @@ RUN adduser \
     --uid "${UID}" \
     appuser
 
+RUN mkdir -p /opt/app/logs && chown appuser:appuser /opt/app/logs
+
 USER appuser
 
 EXPOSE 8761
